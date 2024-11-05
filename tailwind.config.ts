@@ -14,6 +14,15 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [function ({ addUtilities }) {
+    addUtilities({
+      '.scrollbar-none': {
+        /* Hide scrollbar for modern browsers */
+        '&::-webkit-scrollbar': { display: 'none' },
+        '-ms-overflow-style': 'none',  /* IE and Edge */
+        'scrollbar-width': 'none',     /* Firefox */
+      },
+    });
+  },]
 };
 export default config;

@@ -1,101 +1,134 @@
+"use client"
+
+import { IoCopy, IoRefreshCircle } from "react-icons/io5";
+import {useChat} from "ai/react" 
+import Moeex from "@/images/Blue Grey Minimalist Music YouTube Channel Logo (4).png";
+import DefaultUser from "@/images/defaultuser.png"
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import { CircleLoader, ClipLoader } from "react-spinners";
+import { CiSaveUp1 } from "react-icons/ci";
+import AppLoader from "@/components/AppLoader";
+import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [isSaving,setIsSaving] = useState(false);
+  const [isOpenToast,setIsOpenToast] = useState(false);
+  const [copiedText,setCopiedText] = useState<{copiedIdx: number}>();
+const {messages,input,handleInputChange,handleSubmit,isLoading,setInput} = useChat({
+  api: '/api/chat',
+  initialMessages: [{
+    id: Date.now().toString(),
+    role: "assistant",
+    content: "Hi, Welcome to Moeex AI Chatbot, let's chat..."
+  },
+]
+})
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+console.log("Messgaes",messages);
+const chatContainer = useRef<HTMLDivElement>(null);
+const scrollContainer = () => {
+  const {offsetHeight,scrollHeight,scrollTop} = chatContainer.current as HTMLDivElement
+  if(scrollHeight >= scrollTop + offsetHeight) {
+    chatContainer.current?.scrollTo(0,scrollHeight+200);
+  }
+}
+const handleSaveChat = async(arrayIdx: number) => {
+  setIsSaving(false);
+const apiURL = "/api/saveChat";
+const deepCloneChats = structuredClone(messages)
+const chatsArr = [deepCloneChats[arrayIdx-1],deepCloneChats[arrayIdx]]
+const payload = {
+  chats: chatsArr
+}
+try{
+const response = await fetch(apiURL,{
+  body: JSON.stringify(payload)
+}).then(response => {
+  return response.json();
+})
+setIsOpenToast(true);
+toast.success(response);
+}
+catch(error)
+{
+  setIsOpenToast(true);
+  toast.error(error.message);
+}
+setIsSaving(true);
+}
+const userDetails = useSelector(state => {
+  return state?.userReducer?.userDetails;
+})
+const handleCopiedText = () => {
+  setTimeout(() => {
+    return (
+      <span className="text-white">Copied !</span>
+    )
+  },2000)
+}
+useEffect(()=>{
+scrollContainer();
+},[messages])
+console.log(messages);
+  return (
+    <div className="flex flex-col w-full h-[90vh] p-6 justify-between items-center">
+      {isSaving && <AppLoader/>}
+    <div ref={chatContainer} className="flex flex-col gap-1 w-[90%] h-[80%] overflow-y-scroll scrollbar-none rounded-lg bg-violet-950 bg-opacity-35 md:w-[60%]">
+    {messages?.map((msg,indx) => {
+      return(
+        <div key={msg?.id} className="w-full h-fit">
+          {msg?.role === "assistant" && (
+            <div className="flex flex-row gap-2 w-full h-full p-2 items-center">
+            <Image alt="Loading..." src={Moeex} width={50} height={50} className="rounded-full shadow-md" />
+            <div className="flex flex-col w-full h-full gap-2 p-4 border-b-4 border-b-fuchsia-500">
+            <p>{msg?.content}</p>
+            <div className="flex flex-row w-full gap-1 justify-end">
+              {copiedText?.copiedIdx === indx && handleCopiedText()}
+              <button onClick={() => navigator.clipboard.writeText("Hello, world!")
+            .then(() => {
+                setCopiedText({
+                  copiedIdx: indx
+                })
+            })}><IoCopy width={30} height={30} color="purple" className="hover:text-purple-600"/></button>
+            {userDetails?.email?.length > 0 && <div className="flex flex-row w-full justify-end">
+            <button onClick={async() => await handleSaveChat(indx)}><CiSaveUp1 size={30} color="purple"/></button>
+            </div>
+            }
+            </div>
+            </div>
+            </div>
+            )}
+        {msg?.role === "user" && (
+            <div className="flex flex-row gap-2 w-full h-full p-2 items-center">
+            <Image alt="Loading..." src={userDetails?.imgURL?.length > 0 ? userDetails?.imgURL : DefaultUser} width={50} height={50} className="rounded-full shadow-sm" />
+            <div className="flex flex-col w-full h-full max-h-fit gap-2 border-b-4 p-4 border-b-fuchsia-500">
+            <p>{msg?.content}</p>
+            </div>
+            </div>
+            )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      )
+    })}
+    </div>
+    <form onSubmit={handleSubmit} className="flex flex-row p-2 w-fit gap-2 h-[5rem] justify-between rounded-md border-4 border-opacity-80 border-l-fuchsia-900 items-center">
+     <textarea required className="w-[15rem] md:w-[40rem] rounded-md focus:outline-violet-500 h-[60%] max-h-fit p-1 bg-transparent"placeholder="Ask Moeex Chatbot anything..." value={input} onChange={handleInputChange}/>
+     {isLoading === false && <button type="submit" className="flex items-center justify-center rounded-full w-[2rem] h-[2rem] bg-yellow-400 font-extrabold !glow-yellow disabled:bg-yellow-50 glow-yellow" disabled={input?.length === 0}>{">"}</button>}
+     {isLoading && <span className="rounded-full min-w-[2rem] h-[2rem] bg-transparent text-center max-w-fit"><CircleLoader
+        color={"purple"}
+        loading={isLoading}
+        size={20}
+        aria-label="Loading Spinner"
+        data-testid="loader"
+      /></span>  }
+     <button type="submit" className="flex items-center justify-center rounded-full w-[2rem] h-[2rem] bg-transparent border-2 border-fuchsia-500 hover:border-fuchsia-300" onClick={() => setInput("")}><IoRefreshCircle
+     color="purple"
+     size={40}
+     /></button>
+    </form>
+    {isOpenToast && <ToastContainer position="bottom-right" autoClose={5000} hideProgressBar/>}
     </div>
   );
 }

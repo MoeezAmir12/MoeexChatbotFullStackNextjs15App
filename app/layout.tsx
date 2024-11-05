@@ -1,6 +1,12 @@
+
+
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import store from "@/Utils/ProviderStore";
+import NavSidePopup from "@/app/NavBar/NavSidePopup";
+import { Provider } from "react-redux";
+import {AppProvider} from "@/Utils/AppProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -22,14 +28,27 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>)
+
+
+{
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <head>
+      <title>My Next.js App</title>
+      <meta name="description" content="A description of your app" />
+    </head>
+    <body>
+        <AppProvider>
+        <nav className="w-full p-2 sticky">
+          <NavSidePopup
+          />
+          </nav>
+          <div className="w-full h-full">
         {children}
-      </body>
-    </html>
+        </div>
+        </AppProvider>
+     </body>
+     </html>
   );
 }

@@ -19,3 +19,7 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+.glow-yellow {
+  background-color: #facc15; /* Use yellow-400 color */
+  box-shadow: 0 4px 15px rgba(250, 204, 21, 0.6), 0 0 10px rgba(250, 204, 21, 0.8);
+}
