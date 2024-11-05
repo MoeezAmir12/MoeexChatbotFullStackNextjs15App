@@ -15,6 +15,8 @@ import { toast } from "react-toastify";
 
 export default function Home() {
   const [isSaving,setIsSaving] = useState(false);
+  const [savedUserChats,setSavedUserChats] = useState([])
+  const [saved,setSaved] = useState(false);
   const [isOpenToast,setIsOpenToast] = useState(false);
   const [copiedText,setCopiedText] = useState<{copiedIdx: number}>();
 const {messages,input,handleInputChange,handleSubmit,isLoading,setInput} = useChat({
@@ -22,12 +24,11 @@ const {messages,input,handleInputChange,handleSubmit,isLoading,setInput} = useCh
   initialMessages: [{
     id: Date.now().toString(),
     role: "assistant",
-    content: "Hi, Welcome to Moeex AI Chatbot, let's chat..."
+    content: "Hi, Welcome I am Moeez, Introducing you to my Chatbot: Moeex AI-powered assistant, here to make your ideas come to life and answer your toughest questions—fast, friendly, and right at your fingertips. What can I help you with today?"
   },
 ]
 })
 
-console.log("Messgaes",messages);
 const chatContainer = useRef<HTMLDivElement>(null);
 const scrollContainer = () => {
   const {offsetHeight,scrollHeight,scrollTop} = chatContainer.current as HTMLDivElement
@@ -35,44 +36,75 @@ const scrollContainer = () => {
     chatContainer.current?.scrollTo(0,scrollHeight+200);
   }
 }
-const handleSaveChat = async(arrayIdx: number) => {
-  setIsSaving(false);
-const apiURL = "/api/saveChat";
-const deepCloneChats = structuredClone(messages)
-const chatsArr = [deepCloneChats[arrayIdx-1],deepCloneChats[arrayIdx]]
-const payload = {
-  chats: chatsArr
-}
-try{
-const response = await fetch(apiURL,{
-  body: JSON.stringify(payload)
-}).then(response => {
-  return response.json();
-})
-setIsOpenToast(true);
-toast.success(response);
-}
-catch(error)
-{
-  setIsOpenToast(true);
-  toast.error(error.message);
-}
-setIsSaving(true);
-}
+
 const userDetails = useSelector(state => {
   return state?.userReducer?.userDetails;
 })
+const handleSaveChat = async(arrayIdx: number) => {
+  const apiURL = `/api/saveChat`;
+  const deepCloneChats = structuredClone(messages)
+  const chatsArr = [deepCloneChats[arrayIdx],deepCloneChats[arrayIdx-1]]
+  const Arr =  arrayIdx > 0 ? chatsArr : [deepCloneChats[arrayIdx]];
+  const mappedChats = Arr.map(data => {
+    return {
+    userEmail: userDetails?.email,
+    contentID: data.id,
+    role: data.role,
+    content: data.content
+    }
+  })
+  const payload = {
+    chats: mappedChats
+  }
+  try{
+  const response = await fetch(apiURL,{
+    method: "POST",
+    body: JSON.stringify(payload)
+  }).then(response => {
+    return response.json();
+  })
+  setSaved(!saved);
+  setIsOpenToast(true);
+  toast.success(response);
+  }
+  catch(error)
+  {
+    setIsOpenToast(true);
+    toast.error(error.message);
+  }
+  
+  }
 const handleCopiedText = () => {
-  setTimeout(() => {
+  
+  
     return (
       <span className="text-white">Copied !</span>
     )
-  },2000)
+  
 }
 useEffect(()=>{
 scrollContainer();
 },[messages])
-console.log(messages);
+useEffect(()=>{
+  const handleMyChats = async() => {
+    const resp = await fetch("api/getUserChats",{
+       method: "GET"
+     }).then(response => {
+       return response.json();
+     })
+     console.log("Resp",resp);
+     setSavedUserChats(resp?.data);
+     }
+     userDetails?.email?.length > 0 && handleMyChats();
+},[userDetails?.email,saved])
+useEffect(() => {
+setTimeout(() => {
+  setCopiedText({
+    copiedIdx: -1
+  });
+}, 5000);
+},[copiedText])
+console.log(savedUserChats);
   return (
     <div className="flex flex-col w-full h-[90vh] p-6 justify-between items-center">
       {isSaving && <AppLoader/>}
@@ -83,20 +115,20 @@ console.log(messages);
           {msg?.role === "assistant" && (
             <div className="flex flex-row gap-2 w-full h-full p-2 items-center">
             <Image alt="Loading..." src={Moeex} width={50} height={50} className="rounded-full shadow-md" />
-            <div className="flex flex-col w-full h-full gap-2 p-4 border-b-4 border-b-fuchsia-500">
+            <div className="flex flex-col w-full h-full gap-1 p-4 border-b-4 border-b-fuchsia-500">
             <p>{msg?.content}</p>
             <div className="flex flex-row w-full gap-1 justify-end">
               {copiedText?.copiedIdx === indx && handleCopiedText()}
-              <button onClick={() => navigator.clipboard.writeText("Hello, world!")
+              <button onClick={() => navigator.clipboard.writeText(msg?.content)
             .then(() => {
                 setCopiedText({
                   copiedIdx: indx
                 })
-            })}><IoCopy width={30} height={30} color="purple" className="hover:text-purple-600"/></button>
-            {userDetails?.email?.length > 0 && <div className="flex flex-row w-full justify-end">
-            <button onClick={async() => await handleSaveChat(indx)}><CiSaveUp1 size={30} color="purple"/></button>
-            </div>
+            })}><IoCopy width={30} height={30} color="purple" className="group-hover:text-pink-400"/></button>
+            {userDetails?.email?.length > 0 && indx !== 0 && (savedUserChats?.some(chat => chat?.contentID === msg.id) === false || savedUserChats?.length === 0) &&
+            <button onClick={async() => await handleSaveChat(indx)}><CiSaveUp1 size={20} color="light blue"/></button>
             }
+            {savedUserChats?.some(chat => chat.contentID === msg.id) && <span className="text-white">Saved !</span> }
             </div>
             </div>
             </div>

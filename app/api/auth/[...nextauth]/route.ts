@@ -8,12 +8,6 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  callbacks: {
-    async session({ session, token }) {
-      session.user.id = token.sub; // Optionally add the user ID to session
-      return session;
-    },
-  },
   pages: {
     signIn: "/", // Redirects to a custom login page if you have one
   },

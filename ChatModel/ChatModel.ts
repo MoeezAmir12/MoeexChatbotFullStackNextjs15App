@@ -4,9 +4,12 @@ import mongoose from "mongoose";
 const chatModel = new mongoose.Schema({
     userEmail: String,
     role: String,
-    content: String
+    contentID:String,
+    content: String,
+    userID:String
 })
 
-const ChatSchema = mongoose.model("ChatModel",chatModel);
 
-export {ChatSchema};
+const ChatModelSchema = mongoose.models.ChatModel || mongoose.model("ChatModel",chatModel)
+
+export {ChatModelSchema};

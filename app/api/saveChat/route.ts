@@ -1,16 +1,22 @@
-import { ChatSchema } from "@/ChatModel/ChatModel";
+import { ChatModelSchema } from "@/ChatModel/ChatModel";
 import { connectDB } from "@/Utils/ConnectDB";
 import { NextResponse } from "next/server";
 
-async function POST(req: Request,res: Response) {
+export async function POST(req: Request) {
 try{
-const {body} = await req.json();
+const {chats} = await req.json();
+console.log(req);
 const check = await connectDB()
+console.log("here");
+console.log(chats)
+console.log(check);
 if(check === true)
 {
+    console.log("entered");
     const successData = "Chat Saved Success!"
- await ChatSchema.create(body).then(() => {
-   NextResponse.json(
+return await ChatModelSchema.create(chats).then(() => {
+    console.log("Data inserted");
+   return NextResponse.json(
     {
     data: successData,
     status: 200
@@ -21,12 +27,10 @@ if(check === true)
 }
 catch(error)
 {
-    NextResponse.json({
+   return NextResponse.json({
         error: "Internal Server Error"
     },{
         status: 500
     })
 }
 } 
-
-export default POST;
