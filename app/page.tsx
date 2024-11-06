@@ -1,6 +1,6 @@
 "use client"
 
-import { IoCopy, IoRefreshCircle } from "react-icons/io5";
+import { IoCopy, IoEnterSharp, IoRefreshCircle } from "react-icons/io5";
 import {useChat} from "ai/react" 
 import Moeex from "@/images/Blue Grey Minimalist Music YouTube Channel Logo (4).png";
 import DefaultUser from "@/images/defaultuser.png"
@@ -91,7 +91,7 @@ useEffect(()=>{
 },[userDetails?.email,saved])
 useEffect(() => {
 setTimeout(() => {
-  setCopiedText({
+ copiedText?.copiedIdx >= 0 && setCopiedText({
     copiedIdx: -1
   });
 }, 5000);
@@ -138,7 +138,7 @@ console.log(savedUserChats);
     </div>
     <form onSubmit={handleSubmit} className="flex flex-row p-2 w-fit gap-2 h-[5rem] justify-between rounded-md border-4 border-opacity-80 border-l-blue-900 items-center">
      <textarea required className="w-[15rem] md:w-[40rem] rounded-md focus:outline-blue-500 h-[60%] max-h-fit p-1 bg-transparent"placeholder="Ask Moeex Chatbot anything..." value={input} onChange={handleInputChange}/>
-     {isLoading === false && <button type="submit" className="flex items-center justify-center text-[1.2rem] rounded-full w-[2rem] h-[2rem] bg-yellow-400 font-extrabold !glow-yellow disabled:bg-yellow-50 glow-yellow" disabled={input?.length === 0}>{">"}</button>}
+     {isLoading === false && <button type="submit" className="flex items-center justify-center text-[1.2rem] rounded-full w-[2rem] h-[2rem] bg-yellow-400 font-extrabold !glow-yellow disabled:bg-yellow-50 glow-yellow" disabled={input?.length === 0}><IoEnterSharp width={20} height={20} color="white"/></button>}
      {isLoading && <span className="rounded-full min-w-[2rem] h-[2rem] bg-transparent text-center max-w-fit"><CircleLoader
         color={"purple"}
         loading={isLoading}
