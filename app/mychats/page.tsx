@@ -49,7 +49,7 @@ const MyChats = async() => {
               {chat?.role === "assistant" && (
                 <div className="flex flex-row gap-2 w-full h-full justify-start items-center">
                 <Image alt="Loading..." src={Moeex} width={50} height={50} className="rounded-full shadow-md" />
-                <p className="p-4 border-b-4 border-b-fuchsia-500">{chat?.content}</p>
+                <p className="p-4 border-b-4 border-b-blue-500">{chat?.content}</p>
                 </div>
                 )}
             {chat?.role === "user" && (

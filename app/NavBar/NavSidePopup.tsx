@@ -46,7 +46,7 @@ const NavSidePopup = () => {
     },[data])
     return(
         <div className="flex w-full h-[5rem] p-2 flex-col gap-2">
-        <div className="flex flex-row w-full justify-between p-2 border-b-2 border-b-violet-700">
+        <div className="flex flex-row w-full justify-between p-2 border-b-2 border-b-blue-700">
         <div className="flex flex-row gap-4"> 
     <FaBars
     width={20}
