@@ -10,7 +10,6 @@ export async function GET(req: Request) {
         if(checkDB === true)
         {
             const data = await ChatModelSchema.find().then(response => {
-                console.log("Response is",response);
                 return response;
             })
            return NextResponse.json({

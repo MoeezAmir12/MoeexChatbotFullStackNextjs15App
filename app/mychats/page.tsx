@@ -5,11 +5,15 @@ import Moeex from "@/images/Blue Grey Minimalist Music YouTube Channel Logo (4).
 import ImageProfile from "@/components/ImageProfile";
 import AppLoader from "@/components/AppLoader";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+import { authOptions } from "@/components/AuthOptions";
 import EmptyComponent from "@/components/NoData";
 
 const fetchMyChats = async() => {
-    const session = await getServerSession(authOptions);
+    const session : null | {
+        user?: {
+            email: string;
+        }
+    }  = await getServerSession(authOptions);
     const myChatsURL = `${process.env.LOCALHOST_URL}/api/getUserChats`
     try
     {
@@ -22,7 +26,7 @@ return responseData?.data?.filter((chats : {
     userEmail: string;
 }) => chats.userEmail === session?.user?.email);
     }
-    catch(error)
+    catch(error: any)
     {
         throw new Error(error.message);
     }
@@ -31,7 +35,6 @@ return responseData?.data?.filter((chats : {
 const MyChats = async() => {
 
     const chats = await fetchMyChats();
-    console.log("Chats",chats);
     if(!chats)
     {
         return <AppLoader/>
@@ -43,7 +46,7 @@ const MyChats = async() => {
     return(
         <div className="flex flex-col w-full h-full p-6 justify-between items-center">
         <div className="flex flex-col gap-4 w-[90%] h-[80%] md:w-[60%] overflow-y-scroll scrollbar-none">
-        {Array.isArray(chats) && chats?.length > 0 && chats?.map((chat,indx) => {
+        {Array.isArray(chats) && chats?.length > 0 && chats?.map((chat) => {
           return(
             <div key={chat._id} className="w-full h-fit">
               {chat?.role === "assistant" && (

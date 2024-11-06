@@ -25,10 +25,9 @@ export async function POST(req: Request) {
         stream: true,
       })
       const stream = OpenAIStream(response);
-      console.log("Stream",stream);
       return new StreamingTextResponse(stream);
     }
-    catch(error)
+    catch(error: any)
     {
         NextResponse.json({
             status: 500,

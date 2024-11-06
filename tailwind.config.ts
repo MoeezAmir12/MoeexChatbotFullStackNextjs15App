@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { PluginAPI } from "tailwindcss/types/config";
 
 const config: Config = {
   content: [
@@ -14,7 +15,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [function ({ addUtilities }) {
+  plugins: [function ({ addUtilities  }: PluginAPI) {
     addUtilities({
       '.scrollbar-none': {
         /* Hide scrollbar for modern browsers */

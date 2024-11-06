@@ -10,12 +10,15 @@ import { useSelector } from "react-redux";
 import { CircleLoader} from "react-spinners";
 import { CiSaveUp1 } from "react-icons/ci";
 import { Toaster, toast } from 'sonner'
+import { IUserInterface } from "@/interfaces/Interface";
 
 export default function Home() {
   
   const [savedUserChats,setSavedUserChats] = useState([])
   const [saved,setSaved] = useState(false);
-  const [copiedText,setCopiedText] = useState<{copiedIdx: number}>();
+  const [copiedText,setCopiedText] = useState<{copiedIdx: number}>({
+    copiedIdx: -1
+  });
 const {messages,input,handleInputChange,handleSubmit,isLoading,setInput} = useChat({
   api: '/api/chat',
   initialMessages: [{
@@ -34,7 +37,9 @@ const scrollContainer = () => {
   }
 }
 
-const userDetails = useSelector(state => {
+const userDetails = useSelector((state: {
+  userReducer: IUserInterface
+}) => {
   return state?.userReducer?.userDetails;
 })
 const handleSaveChat = async(arrayIdx: number) => {
@@ -84,7 +89,6 @@ useEffect(()=>{
      }).then(response => {
        return response.json();
      })
-     console.log("Resp",resp);
      setSavedUserChats(resp?.data);
      }
      userDetails?.email?.length > 0 && handleMyChats();
@@ -96,7 +100,6 @@ setTimeout(() => {
   });
 }, 5000);
 },[copiedText])
-console.log(savedUserChats);
   return (
     <div className="flex flex-col w-full h-[90vh] p-6 justify-between items-center">
     <div ref={chatContainer} className="flex flex-col gap-1 w-[90%] h-[80%] overflow-y-scroll scrollbar-none rounded-lg bg-violet-950 bg-opacity-45 md:w-[60%]">
@@ -116,10 +119,10 @@ console.log(savedUserChats);
                   copiedIdx: indx
                 })
             })}><IoCopy width={30} height={30} color="light blue" className="group-hover:text-blue-600"/></button>
-            {userDetails?.email?.length > 0 && indx !== 0 && (savedUserChats?.some(chat => chat?.contentID === msg.id) === false || savedUserChats?.length === 0) &&
+            {userDetails?.email?.length > 0 && indx !== 0 && (savedUserChats?.some((chat : {contentID: string;}) => chat?.contentID === msg.id) === false || savedUserChats?.length === 0) &&
             <button onClick={async() => await handleSaveChat(indx)}><CiSaveUp1 size={20} color="light blue"/></button>
             }
-            {savedUserChats?.some(chat => chat.contentID === msg.id) && <span className="text-white">Saved !</span> }
+            {savedUserChats?.some((chat : {contentID: string}) => chat.contentID === msg.id) && <span className="text-white">Saved !</span> }
             </div>
             </div>
             </div>

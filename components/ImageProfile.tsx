@@ -2,11 +2,14 @@
 
 import { useSelector } from "react-redux"
 import Image from "next/image"
+import { IUserInterface } from "@/interfaces/Interface"
 
 
 
 const ImageProfile = () => {
-const userData = useSelector(state => {
+const userData = useSelector((state : {
+    userReducer: IUserInterface
+}) => {
     return state?.userReducer?.userDetails;
 })
 return(

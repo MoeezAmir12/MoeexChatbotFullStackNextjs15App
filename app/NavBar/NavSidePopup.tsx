@@ -11,13 +11,11 @@ import { useEffect, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { FaBars } from "react-icons/fa";
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
-import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
-""
+
 
 const NavSidePopup = () => {
     const {data} = useSession();
-    console.log(data);
     const pathName = usePathname();
     const dispach = useDispatch();
     const [openSidePopUp,setOpenSidePopUp] = useState(false);
